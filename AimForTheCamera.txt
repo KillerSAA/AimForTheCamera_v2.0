@@ -1,0 +1,228 @@
+{$CLEO .csa}
+{$NOSOURCE}
+// vars
+int OpenFile, CloseFile, ReadLine, IniFile
+int valuee, imageb
+int pStr, pStr_buff, pEqual, pLine, pMode, pFileName
+int buffer, ReturnValue, DATATYPE
+
+const _integer = 2, _float = 4
+
+int bVertAngleOnOW, bVertAngleInSniper
+
+
+if OpenIniFile() // return as IniFile
+then
+
+    DATATYPE = _integer
+    GetValueFromIni() // VertAngleOnOtherWeapons / boolean
+    bVertAngleOnOW = ReturnValue
+
+    DATATYPE = _integer
+    GetValueFromIni() // VertAngleInSniper / boolean
+    bVertAngleInSniper = ReturnValue
+
+    CloseIni()
+
+
+end
+
+jump @StartScript
+
+{$Include includes\Functions.h}
+
+// script
+:StartScript
+
+script_name "AimForTheCamera"
+
+int pTheCamera = 0x952118// CCam struct
+int addr, offset, offset2, pAimed, iIb
+float fHorz, fVert
+
+offset = 0x94 // Horizontal Angle offset
+offset2 = 0x84 // Vertical Angle offset
+
+get_image_base iIb
+
+addr = pTheCamera
+addr += offset2
+addr += iIb
+
+pTheCamera += offset
+pTheCamera += iIb
+
+TIMERB = 0
+
+while true
+    wait 0
+
+    if TIMERB < 10000
+    then
+        ShowText()
+    end
+
+    if IsAiming()
+    then
+        if and
+          not Player.IsTargettingAnything(0)
+          TIMERA < 100
+        then
+            Memory.Write(pTheCamera, fHorz, 4, false, false)
+
+            if and
+              bVertAngleOnOW == true
+              82D8:   not actor $PLAYER_ACTOR current_weapon == 34
+            then
+                Memory.Write(addr, fVert, 4, false, false)
+            end
+
+            if and
+              bVertAngleinSniper == true
+              02D8:   actor $PLAYER_ACTOR current_weapon == 34
+            then
+                Memory.Write(addr, fVert, 4, false, false)
+            end
+
+            pAimed = true
+        else
+            Memory.Read(fVert, addr, 4, false)
+            Memory.Read(fHorz, pTheCamera, 4, false)
+        end
+
+    else
+        TIMERA = 0
+
+        if pAimed == true
+        then
+            if and
+              bVertAngleOnOW == true
+              82D8:   not actor $PLAYER_ACTOR current_weapon == 34
+            then
+                Memory.Write(addr, fVert, 4, false, false)
+            end
+
+            if and
+              bVertAngleinSniper == true
+              02D8:   actor $PLAYER_ACTOR current_weapon == 34
+            then
+                Memory.Write(addr, fVert, 4, false, false)
+            end
+
+            pAimed = false
+        end
+            Memory.Read(fVert, addr, 4, false)
+            Memory.Read(fHorz, pTheCamera, 4, false)
+    end
+end
+
+{$Include includes\WeaponMode.h}
+
+:ShowText
+    int addBigMsg, CreateGxt, textt, Gxt
+
+    Memory.GetLabelPointer(CreateGxt, @textToGxt)
+    Memory.GetFuncPointerByCstrName(CreateGxt, CreateGxt)
+
+    Memory.GetLabelPointer(textt, @text)
+    Memory.GetLabelPointer(Gxt, @gxt)
+
+    set_register_value 0 textt
+    set_register_value 1 Gxt
+    context_call_func CreateGxt
+
+    Memory.GetLabelPointer(AddBigMsg, @AddBigMsg)
+    Memory.GetFuncPointerByCstrName(AddBigMsg, AddBigMsg)
+
+    set_register_value 0 Gxt
+    set_register_value 1 1000
+    set_register_value 2 8
+    context_call_func AddBigMsg
+return
+
+{script memory}
+
+:AddBigMsg
+hex
+ "_ZN9CMessages13AddBigMessageEPtjt" 00
+end
+
+:textToGxt
+hex
+ "_Z14AsciiToGxtCharPKcPt" 00
+end
+
+:text
+hex
+ "~y~AimForTheCam~w~ by KillerSA and Yuna~n~~b~discord.gg/ultragaz" 00
+end
+
+:gxt
+hex
+ 00 (32)
+end
+
+:int
+hex
+    "%*s%*s%d" 00
+end
+
+:float
+hex
+    "%*s%*s%f" 00
+end
+
+:value
+hex
+    00(4)
+end
+
+:_ZN8CFileMgr8OpenFileEPKcS1_
+hex
+    "_ZN8CFileMgr8OpenFileEPKcS1_" 00 //"fopen" 00
+end
+
+:_ZN8CFileMgr8ReadLineEjPci //V2.00
+hex
+    "_ZN8CFileMgr8ReadLineEjPci" 00
+end
+
+:_ZN8CFileMgr9CloseFileEj //V2.00
+hex
+    "_ZN8CFileMgr9CloseFileEj" 00
+end
+
+:func
+// script memory
+hex
+    "configs/AimForTheCamera.ini" 00 // modify it
+end
+
+:mode
+hex
+    "rt" 00
+end
+
+:buffer //512 byte
+hex
+    00(512)
+end
+
+:string
+hex
+    "%s%s" 00
+end
+
+:equal
+hex
+    00 //for scan "="
+end
+
+:string_buff
+hex
+    00(512)
+end
+
+hex
+   ";#"
+end
