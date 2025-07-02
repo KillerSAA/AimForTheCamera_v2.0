@@ -1,0 +1,162 @@
+{$CLEO .csa}
+
+{Script created by KillerSA and Yuna. Discord server: discord.gg/ultragaz}
+
+{$NOSOURCE}
+
+script_name "AimForTheCamera"
+
+{$I Includes/SystemIniFiles.h}
+
+TIMERA = 0
+
+while true
+          wait 0
+          if OpenIniFile()
+          then
+              DATATYPE = _int
+              GetValueFromIni()
+              int bVertAngleOnOW = ReturnValueInt
+
+              DATATYPE = _int
+              GetValueFromIni()
+              int bVertAngleInSniper = ReturnValueInt
+
+              CloseIni()
+          end
+             repeat
+                   wait 0
+                   int pTheCamera = 0x951FA8
+                   pTheCamera += 0x170
+                   int iIb
+                   get_image_base iIb
+                   pTheCamera += iIb
+                   int cMode
+                   pTheCamera += 0xE
+                   Memory.Read(cMode, pTheCamera, 1, false)
+                   pTheCamera = 0x951FA8
+                   pTheCamera += 0x170
+                   pTheCamera += iIb
+                   if or
+                        cMode == 0x35
+                        cMode == 0x7
+                        cMode == 0x2E
+                        cMode == 0x33
+                        cMode == 0x8
+                   then
+                       float fVert, fHorz
+                       int pAimed
+                       
+                       if and
+                             not Player.IsTargettingAnything(0)
+                             pAimed == false
+                       then
+                           pTheCamera += 0x84
+                           switch cMode
+                                 case 7
+                                     if bVertAngleInSniper == true
+                                     then
+                                         Memory.Write(pTheCamera, fVert, 4, false, false)
+                                     end
+                                     
+                                 default
+                                        if bVertAngleOnOW == true
+                                        then
+                                            Memory.Write(pTheCamera, fVert, 4, false, false)
+                                        end
+                           end
+                              pTheCamera += 0x10
+                              Memory.Write(pTheCamera, fHorz, 4, false, false)
+                              pTheCamera = 0x951FA8
+                              pTheCamera += 0x170
+                              pTheCamera += iIb
+                              pAimed = true
+                       else
+                           pTheCamera += 0x84
+                           Memory.Read(fVert, pTheCamera, 4, false)
+                           pTheCamera += 0x10
+                           Memory.Read(fHorz, pTheCamera, 4, false)
+                           pTheCamera = 0x951FA8
+                           pTheCamera += 0x170
+                           pTheCamera += iIb
+                       end
+                   else
+                   
+                       if pAimed == true
+                       then
+                           pTheCamera += 0x84
+                           Memory.Write(pTheCamera, fVert, 4, false, false)
+                           pTheCamera += 0x10
+                           Memory.Write(pTheCamera, fHorz, 4, false, false)
+                           pTheCamera = 0x951FA8
+                           pTheCamera += 0x170
+                           pTheCamera += iIb
+                           pAimed = false
+                       else
+                           pTheCamera += 0x84
+                           Memory.Read(fVert, pTheCamera, 4, false)
+                           pTheCamera += 0x10
+                           Memory.Read(fHorz, pTheCamera, 4, false)
+                           pTheCamera = 0x951FA8
+                           pTheCamera += 0x170
+                           pTheCamera += iIb
+                       end
+                   end
+
+                      if TIMERA < 7000
+                      then
+                          ShowText()
+                      end
+                         until 09FA:   is_menu_closed
+end
+
+:FileName
+hex
+"configs/AimForTheCamera.ini" 00
+end
+
+int addBigMsg, CreateGxt, textt, Gxt
+
+:ShowText
+
+
+      0DD0: CreateGxt @textToGxt
+      0DD1: CreateGxt CreateGxt
+
+      0DD0: textt @text
+      0DD0: Gxt @gxt
+
+      set_register_value 0 textt
+      set_register_value 1 Gxt
+      context_call_func CreateGxt
+
+      0DD0: AddBigMsg @func
+      0DD1: AddBigMsg AddBigMsg
+
+      set_register_value 0 Gxt
+      set_register_value 1 1000
+      set_register_value 2 8
+      context_call_func AddBigMsg
+
+return
+
+
+:func
+hex
+ "_ZN9CMessages13AddBigMessageEPtjt" 00
+end
+
+:textToGxt
+hex
+ "_Z14AsciiToGxtCharPKcPt" 00
+end
+
+:text
+hex
+ "~y~AimForTheCam~w~ by KillerSA and Yuna~n~~b~discord.gg/ultragaz" 00
+end
+
+:gxt
+hex
+ 00 (32)
+end
