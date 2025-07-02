@@ -68,7 +68,7 @@ DECL_HOOKv(ProcessScriptsHook)  {
 
 extern "C" void OnModLoad() {
     logger->SetTag("AimForTheCamera");
-    cfg->Bind("Author", "", "About")->SetString("KillerSA"); cfg->ClearLast();
+    cfg->Bind("Author", "", "About")->SetString("KillerSA and Yuna"); cfg->ClearLast();
     cfg->Bind("GitHub", "", "About")->SetString("https://github.com/KillerSAA/AimForTheCamera"); cfg->ClearLast();
     bVertAngleOnOW = cfg->GetBool("VerticalAngleOnOW", true, "configs");
     bVertAngleInSniper = cfg->GetBool("VertAngleInSniper", true, "configs");
