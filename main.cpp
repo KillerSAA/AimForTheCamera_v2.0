@@ -9,19 +9,16 @@ uintptr_t pGTASA = aml->GetLib("libGTASA.so");
 
 // ------------- //
 
-#include <main.h>
+#ifdef AML32
+    #include <SA_200.h>
+#else 
+    #include <SA_210.h>
+#endif 
 
 uintptr_t pTheCamera = (uintptr_t)BYBIT(0x951FA8, 0xBBA8D0);
 CCamera* TheCamera = (CCamera*)(pTheCamera + pGTASA);
 
-bool bVertAngleOnOW = false, bVertAngleInSniper = false;
-
-// will allow reading the .ini values ​​without causing possible performance losses (I think reading the values ​​every frame may cause performance loss)
-DECL_HOOKv(InitPerFrameHook) { 
-    InitPerFrameHook();
-    bVertAngleOnOW = cfg->GetBool("VerticalAngleOnOW", true, "configs");
-    bVertAngleInSniper = cfg->GetBool("VertAngleInSniper", true, "configs");
-}
+bool bVertAngleOnOW = true, bVertAngleInSniper = true;
 
 bool bAimed = false;
 float fVerticalAngle, fHorizontalAngle;
@@ -72,7 +69,7 @@ DECL_HOOKv(ProcessScriptsHook)  {
 extern "C" void OnModLoad() {
     logger->SetTag("AimForTheCamera");
     cfg->Bind("Author", "", "About")->SetString("KillerSA"); cfg->ClearLast();
-    cfg->Bind("GitHub", "", "About")->SetString("https://github.com/KillerSAA/AimForTheCamera_v2.0"); cfg->ClearLast();
+    cfg->Bind("GitHub", "", "About")->SetString("https://github.com/KillerSAA/AimForTheCamera"); cfg->ClearLast();
     bVertAngleOnOW = cfg->GetBool("VerticalAngleOnOW", true, "configs");
     bVertAngleInSniper = cfg->GetBool("VertAngleInSniper", true, "configs");
 
